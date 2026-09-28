@@ -1,0 +1,101 @@
+---
+import '@fontsource-variable/dm-sans';
+import '@fontsource/instrument-serif/latin-400.css';
+import '@fontsource/instrument-serif/latin-400-italic.css';
+import '../styles/global.css';
+import Icon from '../components/Icon.astro';
+interface Props { title?: string; description?: string; }
+const { title = 'Mengqi Li — Machine learning, optimization & software.', description = 'Mengqi Li is a computer science PhD student at CUHK-Shenzhen. His work spans machine learning research, optimization, software projects, and practical teaching demos.' } = Astro.props;
+const onHome = Astro.url.pathname === '/';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f8f7f3" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={new URL(Astro.url.pathname, Astro.site)} />
+    <meta property="og:image" content={new URL('/social.png', Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>{title}</title>
+    <script is:inline>
+      try { const t = localStorage.getItem('theme'); if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.dataset.theme = 'dark'; } catch {}
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header wrap">
+      <a class="wordmark" href="/" aria-label="Mengqi Li home"><span class="monogram" aria-hidden="true">m<span>.</span></span><span>Mengqi Li</span></a>
+      <nav aria-label="Main navigation" id="navigation">
+        <a href={onHome ? '#work' : '/#work'}>Work</a>
+        <a href={onHome ? '#about' : '/#about'}>About</a>
+        <a href="/cv/" aria-current={Astro.url.pathname === '/cv/' ? 'page' : undefined}>CV <span aria-hidden="true">↗</span></a>
+        <a href={onHome ? '#contact' : '/#contact'}>Contact</a>
+      </nav>
+      <div class="header-controls">
+        <button class="theme-toggle icon-button js-only" aria-label="Switch to dark theme" aria-pressed="false"><Icon name="sun" size={19} /></button>
+        <button class="menu-toggle js-only" aria-expanded="false" aria-controls="navigation">Menu <span aria-hidden="true">+</span></button>
+      </div>
+    </header>
+    <slot />
+    <footer class="site-footer wrap">
+      <a class="footer-name" href="/">Mengqi Li <span lang="zh">李梦琦</span></a>
+      <span>Built with AI assistance · GPT-6 Astra</span>
+      <a href="#top">Back to top ↑</a>
+    </footer>
+    <p class="toast" role="status" aria-live="polite"></p>
+    <script>
+      document.documentElement.classList.add('js');
+      const themeButton = document.querySelector<HTMLButtonElement>('.theme-toggle');
+      const syncTheme = () => {
+        const dark = document.documentElement.dataset.theme === 'dark';
+        themeButton?.setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} theme`);
+        themeButton?.setAttribute('aria-pressed', String(dark));
+      };
+      syncTheme();
+      themeButton?.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch {}
+        syncTheme();
+      });
+      const menu = document.querySelector<HTMLButtonElement>('.menu-toggle');
+      const closeMenu = () => { menu?.setAttribute('aria-expanded', 'false'); document.querySelector('.site-header')?.classList.remove('menu-open'); };
+      menu?.addEventListener('click', () => {
+        const open = menu.getAttribute('aria-expanded') !== 'true';
+        menu.setAttribute('aria-expanded', String(open));
+        document.querySelector('.site-header')?.classList.toggle('menu-open', open);
+      });
+      document.querySelectorAll('#navigation a').forEach(link => link.addEventListener('click', closeMenu));
+      document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu?.getAttribute('aria-expanded') === 'true') { closeMenu(); menu.focus(); } });
+      let toastTimeout: ReturnType<typeof setTimeout>;
+      document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach(button => {
+        button.addEventListener('click', async () => {
+          const toast = document.querySelector<HTMLElement>('.toast');
+          if (!toast) return;
+          try {
+            await navigator.clipboard.writeText(button.dataset.copy ?? '');
+            toast.textContent = button.dataset.message ?? 'Copied to clipboard';
+          } catch {
+            toast.textContent = 'Copy unavailable. Select and copy the text directly.';
+            const target = button.dataset.fallback;
+            if (target) {
+              const citation = document.querySelector<HTMLDetailsElement>(target);
+              citation?.setAttribute('open', '');
+              citation?.parentElement?.closest('details')?.setAttribute('open', '');
+            }
+          }
+          toast.classList.add('visible');
+          clearTimeout(toastTimeout);
+          toastTimeout = setTimeout(() => toast.classList.remove('visible'), 3500);
+        });
+      });
+    </script>
+  </body>
+</html>

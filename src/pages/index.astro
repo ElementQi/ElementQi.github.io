@@ -1,0 +1,37 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import { profile, publications } from '../data/profile';
+const featured = [
+  { ...publications[0], role: 'First author', headline: 'Helping models learn from their own responses.', explanation: 'SePT explores a simpler way to improve AI reasoning: let a model generate its own practice material and learn from it, without reward labels or a stronger teacher.' },
+  { ...publications[1], role: 'Co-author', headline: 'Training on longer text with less memory.', explanation: 'StreamBP changes how training computations are organized, reducing temporary memory use while preserving the mathematical result. This makes longer-sequence training possible on the same hardware.' },
+];
+---
+<Layout>
+  <main id="main">
+    <div id="top"></div>
+    <section class="intro wrap" aria-labelledby="hero-title">
+      <div class="intro-identity"><p class="eyebrow">COMPUTER SCIENCE · CUHK-SHENZHEN</p><h1 id="hero-title">Mengqi <em>Li.</em></h1><p class="intro-role">PhD student <span lang="zh">李梦琦</span></p></div>
+      <div class="intro-context"><h2>Machine learning,<br /><em>from ideas to code.</em></h2><p>I work across machine learning research and software development, with a particular interest in optimization. I like understanding the principles behind algorithms and turning ideas into working tools.</p><p class="intro-advisor">At CUHK-Shenzhen, advised by <a href={profile.advisor.url}>Prof. Xiao Li ↗</a></p><div class="intro-links"><a class="text-link" href="#work">Selected work <Icon name="down" size={15} /></a><a class="text-link" href={profile.github}>GitHub <Icon size={15} /></a><a class="text-link" href={`mailto:${profile.email}`}>Email <Icon size={15} /></a></div></div>
+    </section>
+
+    <section class="featured-section wrap" id="work" aria-labelledby="work-title">
+      <div class="section-heading"><div><p class="eyebrow section-index">SELECTED WORK</p><h2 id="work-title">Ideas, <em>put to work.</em></h2></div><a class="text-link" href="/research/">Papers & research details <Icon size={15} /></a></div>
+      <div class="featured-list">
+        {featured.map(item => <article class="featured-entry" aria-labelledby={`${item.id}-title`}>
+          <div class="featured-name"><h3 id={`${item.id}-title`}>{item.name}</h3><p>{item.role}</p><span class="venue">{item.venue}{item.id === 'sept' ? ` · ${item.year}` : ''}</span></div>
+          <div class="featured-description"><h4>{item.headline}</h4><p>{item.explanation}</p><div class="featured-links"><a href={item.paper}>Read the paper <Icon size={13} /></a><a href={item.code}>Explore the code <Icon size={13} /></a><a href={`/research/#${item.id}-title`}>How it works <Icon size={13} /></a></div></div>
+        </article>)}
+      </div>
+    </section>
+
+    <section class="personal-section wrap" id="about" aria-labelledby="about-title">
+      <div><p class="eyebrow section-index">BEYOND THE WORK</p><h2 id="about-title">A little <em>about me.</em></h2></div>
+      <div class="personal-copy"><p>I like questioning the usual approach and following an idea into unfamiliar territory. Chemistry, physics, biology, robotics, and FPGAs are interests I’d like to explore. I’ve also tinkered with small Raspberry Pi 3B projects.</p><p>I studied computer science at Lanzhou University, then data science at CUHK-Shenzhen, where I’m now doing my PhD.</p><a class="text-link" href="/cv/">Background & CV <Icon size={14} /></a></div>
+    </section>
+
+    <section class="contact-section wrap" id="contact" aria-labelledby="contact-title">
+      <div class="contact-grid"><div><h2 id="contact-title">Let’s <em>talk.</em></h2><p>Ideas, collaborations, or a simple hello.</p></div><div class="contact-actions"><a class="contact-email" href={`mailto:${profile.email}`}>{profile.email}<Icon size={23} /></a><div><button class="text-link js-only" data-copy={profile.email} data-message="Email address copied">Copy email <Icon name="copy" size={14} /></button><a class="text-link" href={profile.github}>GitHub <Icon size={14} /></a></div></div></div>
+    </section>
+  </main>
+</Layout>

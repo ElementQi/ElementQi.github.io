@@ -1,0 +1,94 @@
+---
+interface Props { kind: string; }
+const { kind } = Astro.props;
+const prefix = `method-${kind}`;
+---
+<figure class:list={['paper-art', kind]} aria-labelledby={`${prefix}-caption`}>
+  {kind === 'sept' ? <>
+    <p class="diagram-kicker">SePT / ONLINE SELF-TRAINING</p>
+    <svg viewBox="0 0 360 355" fill="none" role="img" aria-labelledby={`${prefix}-title ${prefix}-desc`}>
+      <title id={`${prefix}-title`}>SePT: sample at a lower temperature, train, and refresh</title>
+      <desc id={`${prefix}-desc`}>Sample questions from a task dataset. The current model generates one response per question by default, using sampling temperature tau s. Train on the resulting question-response pairs with ordinary negative log-likelihood at training temperature one. The updated model generates fresh responses in the next round. Training uses no rewards, correctness verifier, or teacher solutions.</desc>
+      <defs><marker id="sept-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M1 1 7 4 1 7" stroke="currentColor" stroke-width="1.2" /></marker></defs>
+      <g class="diagram-flow" marker-end="url(#sept-arrow)">
+        <path d="M190 53v25" /><path d="M190 142v28" /><path d="M190 214v27" />
+        <path d="M65 274H29V110h36" />
+      </g>
+      <rect class="diagram-box" x="65" y="13" width="250" height="40" rx="5" />
+      <text class="diagram-label" x="190" y="38" text-anchor="middle">Questions q from the dataset</text>
+      <rect class="diagram-box emphasized" x="65" y="78" width="250" height="64" rx="5" />
+      <text class="diagram-label strong" x="190" y="102" text-anchor="middle">Current model → sample response o</text>
+      <text class="diagram-small" x="190" y="125" text-anchor="middle">Sampling temperature τs · default G = 1</text>
+      <rect class="diagram-box" x="65" y="170" width="250" height="44" rx="5" />
+      <text class="diagram-label" x="190" y="197" text-anchor="middle">Fresh training pairs (q, o)</text>
+      <rect class="diagram-box emphasized" x="65" y="241" width="250" height="65" rx="5" />
+      <text class="diagram-label strong" x="190" y="265" text-anchor="middle">Update the model with SFT</text>
+      <text class="diagram-formula" x="190" y="289" text-anchor="middle">minimize −log πθ(o | q; τt = 1)</text>
+      <text class="diagram-small" transform="translate(17 196) rotate(-90)" text-anchor="middle">refresh the generator</text>
+      <text class="diagram-small" x="190" y="335" text-anchor="middle">No reward or correctness filtering in training</text>
+    </svg>
+    <figcaption id={`${prefix}-caption`}>
+      <strong>The updated model supplies the next batch.</strong>
+      <span>Low-temperature sampling provides the targets for standard SFT. The reported schedule anneals τs toward 1.</span>
+      <a href="https://arxiv.org/html/2510.18814v4#S2">§2, Algorithm 1 & Appendix B.1 ↗</a>
+    </figcaption>
+  </> : <>
+    <p class="diagram-kicker">StreamBP / INSIDE ONE TRANSFORMER LAYER</p>
+    <svg class="stream-diagram" viewBox="0 0 360 355" fill="none" role="img" aria-labelledby={`${prefix}-title ${prefix}-desc`}>
+      <title id={`${prefix}-title`}>StreamBP: recompute one output chunk and accumulate its exact gradient contribution</title>
+      <desc id={`${prefix}-desc`}>The sequence has four illustrative chunks. For output chunk i, recompute its queries, attention, and MLP activations using the cached keys and values for the full causal prefix through chunk i. Preserve causal masking within the chunk. Backpropagate with the incoming output gradient, add this chunk's contributions to the weight and input gradients, and release temporary chunk activations. Keep the key-value cache and gradient buffers. Summing all chunk contributions yields the same mathematical gradient as full backpropagation.</desc>
+      <defs><marker id="stream-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 1 7 4 1 7" stroke="currentColor" stroke-width="1.2" /></marker></defs>
+      <text class="diagram-small" x="20" y="18">Layer input Hin · sequence chunks</text>
+      {[0, 1, 2, 3].map(i => <g class:list={['output-chunk', { active: i === 1 }]} data-chunk={i}>
+        <rect x={20 + i * 84} y="31" width="68" height="34" rx="4" />
+        <text x={54 + i * 84} y="53" text-anchor="middle" class="diagram-label">{i + 1}</text>
+      </g>)}
+      <path class="diagram-flow chunk-query-path" d="M138 65v16H54v25" marker-end="url(#stream-arrow)" />
+      <rect class="diagram-box emphasized" x="20" y="106" width="68" height="42" rx="5" />
+      <text class="diagram-formula query-label" x="54" y="132" text-anchor="middle">Q₂</text>
+      <path class="diagram-flow" d="M88 127h33" marker-end="url(#stream-arrow)" />
+      <rect class="diagram-box emphasized" x="126" y="106" width="198" height="42" rx="5" />
+      <text class="diagram-label strong" x="225" y="132" text-anchor="middle">Attention → MLP</text>
+      <path class="diagram-flow prefix-bracket" d="M20 189v-5h152v5" />
+      <path class="diagram-flow prefix-path" d="M96 184v-21H225v-15" marker-end="url(#stream-arrow)" />
+      {[0, 1, 2, 3].map(i => <g class:list={['cache-chunk', { available: i <= 1 }]} data-cache={i}>
+        <rect x={20 + i * 84} y="194" width="68" height="33" rx="4" />
+        <text x={54 + i * 84} y="215" text-anchor="middle" class="diagram-small">K{i + 1}, V{i + 1}</text>
+      </g>)}
+      <text class="diagram-small prefix-label" x="20" y="247">Keep full K/V cache; read causal prefix 1…2</text>
+      <path class="diagram-flow" d="M324 127h25v144H190v12" marker-end="url(#stream-arrow)" />
+      <rect class="diagram-box" x="35" y="287" width="290" height="40" rx="5" />
+      <text class="diagram-formula gradient-label" x="180" y="312" text-anchor="middle">gW ← gW + J₂ᵀ δ₂</text>
+      <text class="diagram-small" x="180" y="348" text-anchor="middle">Accumulate gradients; free chunk activations</text>
+    </svg>
+    <div class="chunk-controls js-only" role="group" aria-label="Explore StreamBP sequence chunks">
+      <span>Inspect chunk</span>{[1, 2, 3, 4].map(i => <button type="button" class="chunk-button" data-step={i - 1} aria-label={`Show chunk ${i}`} aria-pressed={i === 2 ? 'true' : 'false'}>{i}</button>)}
+    </div>
+    <figcaption id={`${prefix}-caption`}>
+      <strong>One chunk’s activations. The full gradient.</strong>
+      <span>Jᵢ is the output chunk’s Jacobian; δᵢ is its incoming loss gradient. Sum contributions for both weights and layer inputs. The LM head also streams logits.</span>
+      <a href="https://proceedings.neurips.cc/paper_files/paper/2025/file/f092c84221d73387a6a5dd7517c500a5-Paper-Conference.pdf#page=4">§3.1–3.2 · Equations 1 & 11 ↗</a>
+    </figcaption>
+    <span class="sr-only chunk-status" role="status" aria-live="polite"></span>
+  </>}
+</figure>
+<script>
+  const diagram = document.querySelector('.paper-art.streambp');
+  const subscripts = ['₁', '₂', '₃', '₄'];
+  diagram?.querySelectorAll<HTMLButtonElement>('[data-step]').forEach(button => {
+    button.addEventListener('click', () => {
+      const step = Number(button.dataset.step);
+      diagram.querySelectorAll<HTMLButtonElement>('[data-step]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      diagram.querySelectorAll<SVGElement>('[data-chunk]').forEach(item => item.classList.toggle('active', Number(item.dataset.chunk) === step));
+      diagram.querySelectorAll<SVGElement>('[data-cache]').forEach(item => item.classList.toggle('available', Number(item.dataset.cache) <= step));
+      diagram.querySelector('.chunk-query-path')?.setAttribute('d', `M${54 + step * 84} 65v16H54v25`);
+      diagram.querySelector('.prefix-bracket')?.setAttribute('d', `M20 189v-5h${68 + step * 84}v5`);
+      diagram.querySelector('.prefix-path')?.setAttribute('d', `M${54 + step * 42} 184v-21H225v-15`);
+      const setText = (selector: string, text: string) => { const element = diagram.querySelector(selector); if (element) element.textContent = text; };
+      setText('.query-label', `Q${subscripts[step]}`);
+      setText('.prefix-label', step === 0 ? 'Keep full K/V cache; read causal prefix 1' : `Keep full K/V cache; read causal prefix 1…${step + 1}`);
+      setText('.gradient-label', `gW ← gW + J${subscripts[step]}ᵀ δ${subscripts[step]}`);
+      setText('.chunk-status', `Inspecting chunk ${step + 1} of 4. Attention uses cached keys and values from chunks 1 through ${step + 1}, with causal masking. Its gradient contribution is added to the running sum.`);
+    });
+  });
+</script>
