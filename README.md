@@ -1,6 +1,6 @@
 # Mengqi Li · Portfolio
 
-A warm, minimal personal portfolio for **https://elementqi.github.io**, built with Astro and TypeScript. The homepage leads with Mengqi's role, focus, and selected contributions in plain language, followed by a short personal introduction. A separate research page holds full publications and method diagrams. Includes a printable CV and light/dark themes. Fonts are self-hosted; no analytics or external runtime services are required.
+A simple personal academic homepage for **https://elementqi.github.io**, built with Astro and TypeScript. A single-column layout presents a short biography, selected publications with author lists and links, personal interests, and contact details. A separate research page holds method diagrams and citations. Includes a printable CV and light/dark themes. The site uses system fonts and requires no analytics or external runtime services.
 
 ## Local development
 

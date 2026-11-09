@@ -1,7 +1,4 @@
 ---
-import '@fontsource-variable/dm-sans';
-import '@fontsource/instrument-serif/latin-400.css';
-import '@fontsource/instrument-serif/latin-400-italic.css';
 import '../styles/global.css';
 import Icon from '../components/Icon.astro';
 interface Props { title?: string; description?: string; }
@@ -14,7 +11,7 @@ const onHome = Astro.url.pathname === '/';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#f8f7f3" />
+    <meta name="theme-color" content="#ffffff" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
     <meta property="og:title" content={title} />
@@ -31,11 +28,11 @@ const onHome = Astro.url.pathname === '/';
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header wrap">
-      <a class="wordmark" href="/" aria-label="Mengqi Li home"><span class="monogram" aria-hidden="true">m<span>.</span></span><span>Mengqi Li</span></a>
+      <a class="wordmark" href="/" aria-label="Mengqi Li home">Mengqi Li</a>
       <nav aria-label="Main navigation" id="navigation">
-        <a href={onHome ? '#work' : '/#work'}>Work</a>
+        <a href={onHome ? '#work' : '/#work'}>Publications</a>
         <a href={onHome ? '#about' : '/#about'}>About</a>
-        <a href="/cv/" aria-current={Astro.url.pathname === '/cv/' ? 'page' : undefined}>CV <span aria-hidden="true">↗</span></a>
+        <a href="/cv/" aria-current={Astro.url.pathname === '/cv/' ? 'page' : undefined}>CV</a>
         <a href={onHome ? '#contact' : '/#contact'}>Contact</a>
       </nav>
       <div class="header-controls">
@@ -44,11 +41,6 @@ const onHome = Astro.url.pathname === '/';
       </div>
     </header>
     <slot />
-    <footer class="site-footer wrap">
-      <a class="footer-name" href="/">Mengqi Li <span lang="zh">李梦琦</span></a>
-      <span>Built with AI assistance · GPT-6 Astra</span>
-      <a href="#top">Back to top ↑</a>
-    </footer>
     <p class="toast" role="status" aria-live="polite"></p>
     <script>
       document.documentElement.classList.add('js');

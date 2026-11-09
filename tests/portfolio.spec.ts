@@ -113,7 +113,7 @@ test('homepage leads with contributions and keeps technical detail optional', as
   await page.goto('/');
   await expect(page.locator('.intro')).toContainText('machine learning research and software development');
   await expect(page.locator('.featured-entry')).toHaveCount(2);
-  await expect(page.locator('.featured-entry').first()).toContainText('First author');
+  await expect(page.locator('.featured-entry').first().locator('.authors strong')).toHaveText('Mengqi Li');
   await expect(page.locator('.personal-copy')).toContainText('like to explore');
   await expect(page.locator('.paper-art')).toHaveCount(0);
   await page.getByRole('link', { name: 'Papers & research details' }).click();
